@@ -20,22 +20,12 @@ var CatalogSchema = new Schema({
             ref: 'Genre' 
         }
     ],
-    director:  [{
-            type: String
-    }],
-    writer:[{
-            type: String
-    }],
-    actors:[{
-            type: String
-    }],
+    director:  {type: String},
+    writer:    {type: String},
+    actors:     {type: String},
     plot: {type:String, required:[true,errorMsgs.required]},
-    language:[
-        {type:String}
-    ],
-    country:[
-        {type:String}
-    ],
+    language:{type:String},
+    country:{type:String},
     awards:{type: String},
     poster:{type:String,required:[true,errorMsgs.required]},
     metaScore:{type:Number},
@@ -47,4 +37,8 @@ var CatalogSchema = new Schema({
 
 CatalogSchema.index({ title : 1, released : 1,imdbId:1},{unique:true});
 
-module.exports = mongoose.model('Catalog',CatalogSchema);
+//Catalog = mongoose.model('Catalog',CatalogSchema);
+
+CatalogSchema.index( { "$**": "text" } ,{ language_override: "lang" });
+
+module.exports = mongoose.model('Catalog',CatalogSchema);;
