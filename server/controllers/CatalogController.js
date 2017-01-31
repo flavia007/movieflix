@@ -157,7 +157,7 @@ var catalog = {
     },
     
     update:function(req,res){
-        var catalogItemUpdate = new Catalog({
+        var catalogItemUpdate = {
             title: req.body.title,
             year:  req.body.year,
             rated:  req.body.rated,
@@ -177,7 +177,7 @@ var catalog = {
             imdbVotes:req.body.imdbVotes,
             imdbId:req.body.imdbId,
             type:req.body.type
-        });
+        };
 
         var genrePromises = req.body.genre.map(function(genreItem){
            return GenreCtrl.addUpdateGenre(genreItem);
@@ -188,14 +188,24 @@ var catalog = {
                 catalogItemUpdate.genre.push(genreItem._id); 
                 return;
             });
-            Catalog.update({_id:req.params.catalog_id},{$set:catalogItemUpdate})
+
+            Catalog.update({_id:mongoose.Types.ObjectId(req.params.catalog_id)},{$set:catalogItemUpdate})
                 .then(function(data){
-                    res.json({success:true,message:"Catalog data updated Successfully",catalog:data});
+                    catalogItemUpdate =null;
+                    if(data.nModified >=1)
+                    {
+                        res.json({success:true,message:"Catalog data updated Successfully",catalog:data});
+                    }
+                    else{
+                        res.status(500).json((new MovieFlixError("Failed to update catalog.Either the data is same or some error occurred.","")).sendErrMessage());
+                    }
                 },function(err){
+                    catalogItemUpdate =null;
                     res.status(500).json((new MovieFlixError("",err)).sendErrMessage());
                 });
         },function(err){
-            res.status(500).json((new MovieFlixError("Failed to update genres.Try again later","")).sendErrMessage());
+            catalogItemUpdate =null;
+            res.status(500).json((new MovieFlixError("Failed to update catalog.Try again later","")).sendErrMessage());
         });
     },
     
