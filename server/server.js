@@ -16,6 +16,17 @@ var validateToken = require('./middlewares/validateToken');
 var app = express();
 //connect to database
 mongoose.connect(database_config.database);
+
+mongoose.connection.on('connected', function () {  
+  console.log('Mongoose database connection open to ' + database_config.database);
+}); 
+
+// If the connection throws an error
+mongoose.connection.on('error',function (err) {  
+  console.log('Mongoose database connection error: ' + err);
+}); 
+
+
 app.set('secretKey',database_config.secret);
 
 
